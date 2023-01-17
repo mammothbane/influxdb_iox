@@ -12,12 +12,6 @@ serde_json = "1.0.91"
 snafu = "0.7"
 url = "2.3.1"
 uuid = { version = "1", features = ["v4"] }
-arrow = { version = "29.0.0" }
-arrow-flight = { version = "29.0.0" }
-datafusion = { git = "https://github.com/apache/arrow-datafusion.git", rev="07f49803a3d7a9e9b3c2c9a7714c1bb08db71385", default-features = false }
-datafusion-proto = { git = "https://github.com/apache/arrow-datafusion.git", rev="07f49803a3d7a9e9b3c2c9a7714c1bb08db71385" }
-hashbrown = { version = "0.13.2" }
-parquet = { version = "29.0.0" }
 
 [dev-dependencies] # In alphabetical order
 mockito = "0.31"
