@@ -2333,11 +2333,17 @@ dependencies = [
 name = "influxdb2_client"
 version = "0.1.0"
 dependencies = [
+ "arrow",
+ "arrow-flight",
  "bytes",
+ "datafusion",
+ "datafusion-proto",
  "futures",
+ "hashbrown 0.13.2",
  "mockito",
  "once_cell",
  "parking_lot 0.12.1",
+ "parquet",
  "reqwest",
  "serde",
  "serde_json",
