@@ -1,9 +1,6 @@
 [package]
 name = "influxdb2_client"
-version.workspace = true
-authors.workspace = true
-edition.workspace = true
-license.workspace = true
+version = "0.1.0"
 
 [dependencies] # In alphabetical order
 bytes = "1.3"
