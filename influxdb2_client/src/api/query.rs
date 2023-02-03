@@ -8,6 +8,7 @@ use crate::{
 };
 use reqwest::{Method, StatusCode};
 use snafu::ResultExt;
+use bytes::Bytes;
 
 use crate::models::{
     AnalyzeQueryResponse, AstResponse, FluxSuggestion, FluxSuggestions, LanguageRequest, Query,
@@ -79,6 +80,30 @@ impl Client {
             StatusCode::OK => {
                 let bytes = response.bytes().await.context(ResponseBytesSnafu)?;
                 String::from_utf8(bytes.to_vec()).context(ResponseStringSnafu)
+            }
+            status => {
+                let text = response.text().await.context(ReqwestProcessingSnafu)?;
+                HttpSnafu { status, text }.fail()?
+            }
+        }
+    }
+
+    pub async fn query_raw_stream(&self, org: &str, query: Option<Query>) -> Result<impl Stream<Item = Result<Bytes, RequestError>>, RequestError> {
+        let req_url = format!("{}/api/v2/query", self.url);
+
+        let response = self
+            .request(Method::POST, &req_url)
+            .header("Accepting-Encoding", "identity")
+            .header("Content-Type", "application/json")
+            .query(&[("org", &org)])
+            .body(serde_json::to_string(&query.unwrap_or_default()).context(SerializingSnafu)?)
+            .send()
+            .await
+            .context(ReqwestProcessingSnafu)?;
+
+        match response.status() {
+            StatusCode::OK => {
+                response.bytes_stream().map(|b| b.context(ResponseBytesSnafu).map_err(RequestError::from))
             }
             status => {
                 let text = response.text().await.context(ReqwestProcessingSnafu)?;
