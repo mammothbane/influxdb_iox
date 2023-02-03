@@ -9,6 +9,7 @@ use crate::{
 use reqwest::{Method, StatusCode};
 use snafu::ResultExt;
 use bytes::Bytes;
+use futures::{Stream, StreamExt};
 
 use crate::models::{
     AnalyzeQueryResponse, AstResponse, FluxSuggestion, FluxSuggestions, LanguageRequest, Query,
@@ -88,6 +89,7 @@ impl Client {
         }
     }
 
+    /// Query and return the raw string data from the server as a stream
     pub async fn query_raw_stream(&self, org: &str, query: Option<Query>) -> Result<impl Stream<Item = Result<Bytes, RequestError>>, RequestError> {
         let req_url = format!("{}/api/v2/query", self.url);
 
@@ -103,7 +105,7 @@ impl Client {
 
         match response.status() {
             StatusCode::OK => {
-                response.bytes_stream().map(|b| b.context(ResponseBytesSnafu).map_err(RequestError::from))
+                Ok(response.bytes_stream().map(|b| b.context(ResponseBytesSnafu).map_err(RequestError::from)))
             }
             status => {
                 let text = response.text().await.context(ReqwestProcessingSnafu)?;
